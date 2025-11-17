@@ -27,7 +27,7 @@ Plataforma web moderna para la gestión y venta de materiales de construcción. 
 - 🛍️ **Catálogo de productos** con filtros avanzados por categoría, precio y disponibilidad
 - 🔍 **Búsqueda y comparación** de productos
 - 🛒 **Carrito de compras** con estado persistente
-- 💝 **Lista de deseos** para guardar productos favoritos
+- ❤️ **Favoritos** para guardar productos favoritos
 - 📱 **Checkout vía WhatsApp** para enviar pedidos directamente
 - 📦 **Seguimiento de pedidos** con historial completo
 - 👤 **Autenticación segura** con Supabase Auth
@@ -116,10 +116,17 @@ Plataforma web moderna para la gestión y venta de materiales de construcción. 
 | `NEXT_PUBLIC_SUPABASE_URL` | URL de tu proyecto Supabase | Sí |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima de Supabase | Sí |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Número de WhatsApp Business | Sí |
+| `NEXT_PUBLIC_CONTACT_PHONE` | Teléfono de contacto | No |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email de contacto | No |
+| `NEXT_PUBLIC_STORE_ADDRESS` | Dirección del local | No |
+| `NEXT_PUBLIC_MAP_LAT` | Latitud para el mapa | No |
+| `NEXT_PUBLIC_MAP_LNG` | Longitud para el mapa | No |
 | `NEXT_PUBLIC_SENTRY_DSN` | DSN de Sentry para monitoreo | No |
 | `SENTRY_ORG` | Organización de Sentry | No |
 | `SENTRY_PROJECT` | Proyecto de Sentry | No |
 | `SENTRY_AUTH_TOKEN` | Token de autenticación de Sentry | No |
+
+Para más detalles sobre la configuración de contacto, consulta la [Guía de Configuración de Contacto](./docs/CONTACT_CONFIG.md)
 
 Para más detalles, consulta la [Guía de Instalación](./docs/INSTALLATION.md) o la [Guía de Despliegue](./docs/DEPLOYMENT.md)
 
@@ -157,7 +164,7 @@ MaterialesYA/
 │   ├── cart/                # Página del carrito
 │   ├── orders/              # Página de pedidos
 │   ├── products/            # Páginas de productos
-│   ├── wishlist/            # Página de lista de deseos
+│   ├── wishlist/            # Página de favoritos
 │   ├── layout.tsx           # Layout principal
 │   └── globals.css          # Estilos globales
 ├── components/              # Componentes React

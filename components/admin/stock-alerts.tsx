@@ -47,13 +47,17 @@ export function StockAlerts() {
         return;
       }
 
-      // Obtener productos con stock bajo
-      const { data: products, error: productsError } = await supabase
+      // Obtener todos los productos y filtrar los que tienen stock bajo
+      const { data: allProducts, error: productsError } = await supabase
         .from("products")
-        .select("id, name, stock, min_stock, base_price")
-        .lte("stock", supabase.raw("min_stock"));
+        .select("id, name, stock, min_stock, base_price");
 
       if (productsError) throw productsError;
+
+      // Filtrar productos con stock <= min_stock
+      const products = (allProducts || []).filter(
+        (product) => product.stock <= product.min_stock
+      );
 
       // Obtener alertas existentes
       const { data: existingAlerts, error: alertsError } = await supabase

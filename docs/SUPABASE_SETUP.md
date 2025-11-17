@@ -80,20 +80,25 @@ https://tu-proyecto.vercel.app/auth/callback
 
 ### Paso 6: Crear tu Primer Usuario Admin
 
-Para crear un usuario administrador:
+Para crear un usuario administrador, consulta la guía completa:
+
+**📖 Guía detallada:** [ADMIN_SETUP.md](./ADMIN_SETUP.md)
+
+**Resumen rápido:**
 
 1. Ve a **Authentication** > **Users** en Supabase Dashboard
-2. Haz clic en **Add User** > **Create New User**
-3. Ingresa el email y contraseña
-4. Anota el **User ID** (UUID)
-
-Luego ejecuta este SQL (reemplaza `USER_ID_AQUI` con el UUID del usuario):
+2. Crea un nuevo usuario con email y contraseña
+3. Copia el **User ID** (UUID) del usuario creado
+4. Ejecuta este SQL en el SQL Editor (reemplaza `USER_ID_AQUI` con el UUID):
 
 ```sql
 INSERT INTO user_roles (user_id, role) 
 VALUES ('USER_ID_AQUI', 'admin')
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
+
+5. Inicia sesión en la aplicación con ese email y contraseña
+6. Accede a `/admin` para ver el panel de administración
 
 ## 🔍 Verificación
 
@@ -168,7 +173,7 @@ Si las políticas RLS están bloqueando el acceso:
 - **product_variants**: Variantes de productos (tamaño, color, etc.)
 - **discounts**: Descuentos y promociones
 - **customer_prices**: Precios personalizados por cliente
-- **wishlists**: Lista de deseos
+- **wishlists**: Favoritos de usuarios
 - **order_status_history**: Historial de cambios de estado de órdenes
 - **inventory_movements**: Movimientos de inventario
 - **stock_alerts**: Alertas de stock bajo

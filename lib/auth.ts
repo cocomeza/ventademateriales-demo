@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
-import { createClient } from "@/lib/supabase/server";
 
 export type UserRole = "admin" | "seller" | "customer";
 
@@ -29,9 +28,12 @@ export async function getUserRole(): Promise<UserRole | null> {
 
 /**
  * Obtiene el rol del usuario actual (servidor)
+ * Esta función solo debe usarse en Server Components o API Routes
  */
 export async function getUserRoleServer(): Promise<UserRole | null> {
   try {
+    // Importación dinámica para evitar errores en componentes del cliente
+    const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;

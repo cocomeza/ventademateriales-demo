@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,33 +16,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useComparatorStore } from "@/store/comparator-store";
 
 interface ProductComparatorProps {
   products: Product[];
 }
 
 export function ProductComparator({ products }: ProductComparatorProps) {
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const { products: selectedProducts, removeProduct, clearComparator, addProduct } = useComparatorStore();
   const [isOpen, setIsOpen] = useState(false);
-
-  const addProduct = (product: Product) => {
-    if (selectedProducts.length >= 4) {
-      return;
+  
+  // Abrir automáticamente si hay productos seleccionados
+  useEffect(() => {
+    if (selectedProducts.length > 0) {
+      setIsOpen(true);
     }
-    if (!selectedProducts.find((p) => p.id === product.id)) {
-      setSelectedProducts([...selectedProducts, product]);
-    }
+  }, [selectedProducts.length]);
+
+  const handleAddProduct = (product: Product) => {
+    addProduct(product);
   };
 
-  const removeProduct = (productId: string) => {
-    setSelectedProducts(selectedProducts.filter((p) => p.id !== productId));
+  const handleRemoveProduct = (productId: string) => {
+    removeProduct(productId);
   };
 
-  const clearAll = () => {
-    setSelectedProducts([]);
+  const handleClearAll = () => {
+    clearComparator();
   };
 
-  if (selectedProducts.length === 0 && !isOpen) {
+  // Mostrar botón flotante si está cerrado o no hay productos
+  if ((selectedProducts.length === 0 && !isOpen) || (!isOpen && selectedProducts.length > 0)) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <Button
@@ -53,7 +57,7 @@ export function ProductComparator({ products }: ProductComparatorProps) {
           <GitCompare className="h-5 w-5 mr-2" />
           Comparar Productos
           {selectedProducts.length > 0 && (
-            <span className="ml-2 bg-white text-primary rounded-full px-2 py-0.5 text-xs">
+            <span className="ml-2 bg-white text-primary rounded-full px-2 py-0.5 text-xs font-bold">
               {selectedProducts.length}
             </span>
           )}
@@ -61,9 +65,14 @@ export function ProductComparator({ products }: ProductComparatorProps) {
       </div>
     );
   }
+  
+  // No mostrar nada si está cerrado y no hay productos
+  if (selectedProducts.length === 0 && !isOpen) {
+    return null;
+  }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-full max-w-6xl">
+    <div className="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-6xl">
       <Card className="shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <CardTitle className="flex items-center gap-2">
@@ -72,7 +81,7 @@ export function ProductComparator({ products }: ProductComparatorProps) {
           </CardTitle>
           <div className="flex gap-2">
             {selectedProducts.length > 0 && (
-              <Button variant="outline" size="sm" onClick={clearAll}>
+              <Button variant="outline" size="sm" onClick={handleClearAll}>
                 Limpiar Todo
               </Button>
             )}
@@ -93,7 +102,7 @@ export function ProductComparator({ products }: ProductComparatorProps) {
                     key={product.id}
                     variant="outline"
                     size="sm"
-                    onClick={() => addProduct(product)}
+                    onClick={() => handleAddProduct(product)}
                     className="h-auto flex-col p-2"
                   >
                     <Plus className="h-4 w-4 mb-1" />
@@ -173,7 +182,7 @@ export function ProductComparator({ products }: ProductComparatorProps) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => removeProduct(product.id)}
+                              onClick={() => handleRemoveProduct(product.id)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -198,7 +207,7 @@ export function ProductComparator({ products }: ProductComparatorProps) {
                           key={product.id}
                           variant="outline"
                           size="sm"
-                          onClick={() => addProduct(product)}
+                          onClick={() => handleAddProduct(product)}
                         >
                           <Plus className="h-3 w-3 mr-1" />
                           {product.name}

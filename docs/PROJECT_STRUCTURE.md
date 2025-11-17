@@ -39,7 +39,7 @@ MaterialesYA/
 │   ├── orders/                # Página de pedidos
 │   ├── products/              # Páginas de productos
 │   │   └── [id]/
-│   ├── wishlist/              # Página de lista de deseos
+│   ├── wishlist/              # Página de favoritos
 │   ├── layout.tsx             # Layout principal
 │   ├── page.tsx               # Página principal
 │   └── globals.css            # Estilos globales
@@ -81,7 +81,7 @@ MaterialesYA/
 │   ├── product-catalog.tsx
 │   ├── product-comparator.tsx
 │   ├── product-detail.tsx
-│   └── wishlist-view.tsx
+│   └── wishlist-view.tsx      # Componente de vista de favoritos
 │
 ├── docs/                      # Documentación del proyecto
 │   ├── DEPLOYMENT.md          # Guía de despliegue

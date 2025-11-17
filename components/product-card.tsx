@@ -6,11 +6,13 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart, Package, Tag, TrendingUp, CheckCircle2, AlertCircle, GitCompare } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { calculateProductPrice } from "@/lib/pricing";
+import { getUserRole, type UserRole } from "@/lib/auth";
+import { useComparatorStore } from "@/store/comparator-store";
 import {
   Select,
   SelectContent,
@@ -31,6 +33,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  
+  // Comparador
+  const { addProduct, removeProduct, isInComparator, canAddMore } = useComparatorStore();
+  const isInComparatorState = isInComparator(product.id);
+
+  useEffect(() => {
+    getUserRole().then(setUserRole);
+  }, []);
 
   const images = product.images && product.images.length > 0
     ? product.images.sort((a, b) => a.display_order - b.display_order).map(img => img.image_url)
@@ -63,11 +74,35 @@ export function ProductCard({ product }: ProductCardProps) {
     });
   };
 
+  const handleToggleComparator = () => {
+    if (isInComparatorState) {
+      removeProduct(product.id);
+      toast({
+        title: "Eliminado",
+        description: `${product.name} eliminado del comparador`,
+      });
+    } else {
+      if (!canAddMore()) {
+        toast({
+          title: "Límite alcanzado",
+          description: "Puedes comparar hasta 4 productos a la vez",
+          variant: "destructive",
+        });
+        return;
+      }
+      addProduct(product);
+      toast({
+        title: "Agregado",
+        description: `${product.name} agregado al comparador`,
+      });
+    }
+  };
+
   const handleToggleWishlist = async () => {
     if (!isSupabaseConfigured() || !supabase) {
       toast({
         title: "Error",
-        description: "Debes iniciar sesión para usar la lista de deseos",
+        description: "Debes iniciar sesión para usar favoritos",
         variant: "destructive",
       });
       return;
@@ -78,7 +113,7 @@ export function ProductCard({ product }: ProductCardProps) {
       if (!user) {
         toast({
           title: "Error",
-          description: "Debes iniciar sesión para usar la lista de deseos",
+          description: "Debes iniciar sesión para usar favoritos",
           variant: "destructive",
         });
         return;
@@ -95,7 +130,7 @@ export function ProductCard({ product }: ProductCardProps) {
         setIsInWishlist(false);
         toast({
           title: "Eliminado",
-          description: "Producto eliminado de tu lista de deseos",
+          description: "Producto eliminado de tus favoritos",
         });
       } else {
         const { error } = await supabase.from("wishlists").insert({
@@ -107,23 +142,26 @@ export function ProductCard({ product }: ProductCardProps) {
         setIsInWishlist(true);
         toast({
           title: "Agregado",
-          description: "Producto agregado a tu lista de deseos",
+          description: "Producto agregado a tus favoritos",
         });
       }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Error al actualizar la lista de deseos",
+        description: error.message || "Error al actualizar tus favoritos",
         variant: "destructive",
       });
     }
   };
 
+  const stock = selectedVariantObj ? selectedVariantObj.stock : product.stock;
+  const isOutOfStock = stock === 0;
+
   return (
-    <Card className="flex flex-col">
+    <Card className={`flex flex-col h-full border-primary/10 hover:border-primary/30 transition-all shadow-sm hover:shadow-lg ${isOutOfStock ? 'opacity-75' : ''}`} data-testid="product-card">
       <CardHeader className="p-0 relative">
         <Link href={`/products/${product.id}`}>
-          <div className="relative w-full h-48 bg-muted rounded-t-lg overflow-hidden group cursor-pointer hover:opacity-90 transition-opacity">
+          <div className="relative w-full h-40 sm:h-44 bg-muted rounded-t-lg overflow-hidden group cursor-pointer hover:opacity-90 transition-opacity">
             {images.length > 0 ? (
               <>
                 <Image
@@ -131,9 +169,11 @@ export function ProductCard({ product }: ProductCardProps) {
                   alt={product.name}
                   fill
                   className="object-cover transition-opacity"
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {images.length > 1 && (
-                  <div className="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" role="group" aria-label="Navegación de imágenes">
                     {images.map((img, idx) => (
                       <button
                         key={idx}
@@ -144,6 +184,8 @@ export function ProductCard({ product }: ProductCardProps) {
                         className={`flex-1 h-1 rounded ${
                           idx === mainImageIndex ? "bg-white" : "bg-white/50"
                         }`}
+                        aria-label={`Ver imagen ${idx + 1} de ${images.length}`}
+                        aria-pressed={idx === mainImageIndex}
                       />
                     ))}
                   </div>
@@ -154,75 +196,175 @@ export function ProductCard({ product }: ProductCardProps) {
                 Sin imagen
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 bg-white/80 hover:bg-white z-10"
-              onClick={(e) => {
-                e.preventDefault();
-                handleToggleWishlist();
-              }}
-            >
-              <Heart
-                className={`h-4 w-4 ${
-                  isInWishlist ? "fill-red-500 text-red-500" : ""
-                }`}
-              />
-            </Button>
+            {/* Botones de acción rápida */}
+            <div className="absolute top-2 right-2 flex gap-2 z-10">
+              {/* Botón comparar - siempre visible */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all rounded-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleToggleComparator();
+                }}
+                aria-label={isInComparatorState ? `Quitar ${product.name} del comparador` : `Agregar ${product.name} al comparador`}
+              >
+                <GitCompare
+                  className={`h-4 w-4 transition-all ${
+                    isInComparatorState ? "fill-primary text-primary scale-110" : "hover:scale-110"
+                  }`}
+                  aria-hidden="true"
+                />
+              </Button>
+              
+              {/* Ocultar botón de favoritos para admin y seller */}
+              {userRole !== "admin" && userRole !== "seller" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleToggleWishlist();
+                  }}
+                  aria-label={isInWishlist ? `Quitar ${product.name} de favoritos` : `Agregar ${product.name} a favoritos`}
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-all ${
+                      isInWishlist ? "fill-red-500 text-red-500 scale-110" : "hover:scale-110"
+                    }`}
+                    aria-hidden="true"
+                  />
+                </Button>
+              )}
+            </div>
+            {/* Badge de stock en la imagen */}
+            {isOutOfStock && (
+              <div className="absolute top-2 left-2 z-10">
+                <div className="bg-destructive text-destructive-foreground px-2.5 py-1 rounded-md text-xs font-bold shadow-md">
+                  Agotado
+                </div>
+              </div>
+            )}
           </div>
         </Link>
       </CardHeader>
-      <CardContent className="flex-1 p-4">
-        <Link href={`/products/${product.id}`}>
-          <h3 className="font-semibold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
-            {product.name}
-          </h3>
-        </Link>
+      <CardContent className="flex-1 p-3 sm:p-4 space-y-3">
+        {/* Título y categoría */}
+        <div>
+          <Link href={`/products/${product.id}`}>
+            <h3 className="font-bold text-sm sm:text-base mb-1 hover:text-primary transition-colors cursor-pointer line-clamp-2 leading-tight">
+              {product.name}
+            </h3>
+          </Link>
+          {product.category && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <Tag className="h-2.5 w-2.5 text-primary" />
+              <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                {product.category}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Descripción - Ocultada en cards pequeñas para ahorrar espacio */}
         {product.description && (
-          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-            {product.description}
-          </p>
+          <div className="space-y-1 hidden sm:block">
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {product.description}
+            </p>
+          </div>
         )}
+
+        {/* Variantes - Más compacto */}
         {product.variants && product.variants.length > 0 && (
-          <div className="mt-2">
-            <Label className="text-sm mb-1 block">Variante</Label>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-semibold text-foreground flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-primary" />
+              Variante
+            </Label>
             <Select value={selectedVariant || ""} onValueChange={setSelectedVariant}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona una variante" />
+              <SelectTrigger className="h-8 border-primary/20 text-xs">
+                <SelectValue placeholder="Variante" />
               </SelectTrigger>
               <SelectContent>
                 {product.variants.map((variant) => (
-                  <SelectItem key={variant.id} value={variant.id}>
-                    {variant.name}: {variant.value}
-                    {variant.price_modifier !== 0 && (
-                      <span className="ml-2">
-                        ({variant.price_modifier > 0 ? "+" : ""}
-                        {formatPrice(variant.price_modifier)})
-                      </span>
-                    )}
+                  <SelectItem key={variant.id} value={variant.id} className="text-xs">
+                    <div className="flex items-center justify-between w-full">
+                      <span>{variant.name}: {variant.value}</span>
+                      {variant.price_modifier !== 0 && (
+                        <span className="ml-2 text-[10px] text-primary font-medium">
+                          {variant.price_modifier > 0 ? "+" : ""}
+                          {formatPrice(variant.price_modifier)}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         )}
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            <span className="text-2xl font-bold">{formatPrice(displayPrice)}</span>
-            {product.wholesale_price && (
-              <span className="text-xs text-muted-foreground block">
-                Mayorista: {formatPrice(product.wholesale_price)}
+
+        {/* Precio y Stock - Más compacto */}
+        <div className="space-y-2 pt-2 border-t border-primary/10">
+          {/* Precio */}
+          <div className="space-y-0.5">
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg sm:text-xl font-bold text-primary" data-testid="product-price">
+                {formatPrice(displayPrice)}
               </span>
+            </div>
+            {product.wholesale_price && (
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <Tag className="h-2.5 w-2.5" />
+                <span className="font-medium">Mayorista: <span className="text-primary font-semibold">{formatPrice(product.wholesale_price)}</span></span>
+              </div>
             )}
           </div>
-          <span className="text-sm text-muted-foreground">
-            Stock: {selectedVariantObj ? selectedVariantObj.stock : product.stock}
-          </span>
+
+          {/* Stock - Más compacto */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1">
+              {(() => {
+                const stock = selectedVariantObj ? selectedVariantObj.stock : product.stock;
+                const isLowStock = stock > 0 && stock <= (product.min_stock || 10);
+                const isOutOfStock = stock === 0;
+                
+                return (
+                  <>
+                    {isOutOfStock ? (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-destructive/10 text-destructive rounded text-[10px] font-semibold">
+                        <AlertCircle className="h-3 w-3" />
+                        Agotado
+                      </div>
+                    ) : isLowStock ? (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-600 rounded text-[10px] font-semibold">
+                        <AlertCircle className="h-3 w-3" />
+                        Poco
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded text-[10px] font-semibold">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Stock
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Package className="h-3 w-3" />
+              <span className="font-medium">
+                {selectedVariantObj ? selectedVariantObj.stock : product.stock}
+              </span>
+            </div>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-3 sm:p-4 pt-0">
         <Button
-          className="w-full"
+          className="w-full h-9 text-sm font-semibold shadow-sm hover:shadow-md transition-all"
           onClick={handleAddToCart}
           disabled={
             product.variants && product.variants.length > 0

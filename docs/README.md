@@ -19,6 +19,14 @@ Guía completa para configurar la base de datos en Supabase:
 - Datos de ejemplo
 - Verificación y solución de problemas
 
+### [Configuración de Usuario Admin](./ADMIN_SETUP.md)
+Guía para crear y configurar usuarios administradores:
+- Crear usuario en Supabase
+- Asignar rol de admin
+- Iniciar sesión como admin
+- Gestión de roles y usuarios
+- Solución de problemas
+
 ### [Guía de Despliegue](./DEPLOYMENT.md)
 Instrucciones detalladas para desplegar MaterialesYA en producción:
 - Despliegue en Vercel (recomendado)

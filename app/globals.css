@@ -9,33 +9,39 @@
 
 @layer base {
   :root {
+    /* Fondo blanco limpio como en las imágenes */
     --background: 0 0% 100%;
-    --foreground: 20 14% 10%;
+    --foreground: 20 14% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 14% 10%;
+    --card-foreground: 20 14% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14% 10%;
+    --popover-foreground: 20 14% 4%;
 
-    --primary: 25 95% 53%;
+    /* Naranja vibrante como en las imágenes (#FF6B35 / hsl(15, 100%, 60%)) */
+    --primary: 15 100% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 14% 95%;
+    /* Gris claro/beige como en las imágenes */
+    --secondary: 30 10% 96%;
     --secondary-foreground: 20 14% 10%;
 
-    --muted: 20 14% 96%;
-    --muted-foreground: 20 10% 45%;
+    /* Muted más cálido */
+    --muted: 30 8% 97%;
+    --muted-foreground: 20 8% 40%;
 
-    --accent: 35 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Amarillo para acentos (herramientas) */
+    --accent: 45 100% 55%;
+    --accent-foreground: 20 14% 4%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 13% 88%;
-    --input: 20 13% 88%;
-    --ring: 25 95% 53%;
+    /* Bordes más suaves */
+    --border: 30 10% 90%;
+    --input: 30 10% 90%;
+    --ring: 15 100% 60%;
 
     --radius: 0.5rem;
 
@@ -60,7 +66,8 @@
     --popover: 20 14% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 25 95% 53%;
+    /* Mantener naranja vibrante en modo oscuro */
+    --primary: 15 100% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 20 14% 16%;
@@ -69,7 +76,7 @@
     --muted: 20 14% 16%;
     --muted-foreground: 20 10% 65%;
 
-    --accent: 35 100% 50%;
+    --accent: 45 100% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 50%;
@@ -77,7 +84,7 @@
 
     --border: 20 14% 20%;
     --input: 20 14% 20%;
-    --ring: 25 95% 53%;
+    --ring: 15 100% 60%;
 
     /* Variables para el sidebar en modo oscuro */
     --sidebar-background: 240 5.9% 10%;
@@ -98,6 +105,48 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Fondo blanco limpio con textura sutil */
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 107, 53, 0.01) 10px,
+        rgba(255, 107, 53, 0.01) 20px
+      );
+  }
+}
+
+/* Patrones decorativos inspirados en las imágenes */
+@layer utilities {
+  .pattern-dots {
+    background-image: radial-gradient(circle, rgba(255, 107, 53, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .pattern-grid {
+    background-image: 
+      linear-gradient(rgba(255, 107, 53, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 107, 53, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .gradient-orange {
+    background: linear-gradient(135deg, hsl(15, 100%, 60%) 0%, hsl(25, 95%, 55%) 100%);
+  }
+  
+  .gradient-warm {
+    background: linear-gradient(135deg, hsl(30, 10%, 98%) 0%, hsl(30, 8%, 95%) 100%);
+  }
+
+  /* Ocultar scrollbar pero mantener funcionalidad */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
   }
 }
 

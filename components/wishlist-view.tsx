@@ -64,7 +64,7 @@ export function WishlistView() {
       console.error("Error loading wishlist:", error);
       toast({
         title: "Error",
-        description: "Error al cargar la lista de deseos",
+        description: "Error al cargar tus favoritos",
         variant: "destructive",
       });
     } finally {
@@ -84,7 +84,7 @@ export function WishlistView() {
       if (error) throw error;
       toast({
         title: "Eliminado",
-        description: "Producto eliminado de tu lista de deseos",
+        description: "Producto eliminado de tus favoritos",
       });
       loadWishlist();
     } catch (error: any) {
@@ -130,7 +130,7 @@ export function WishlistView() {
         <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-2xl font-semibold mb-2">Debes iniciar sesión</h2>
         <p className="text-muted-foreground mb-6">
-          Inicia sesión para ver tu lista de deseos
+          Inicia sesión para ver tus favoritos
         </p>
         <Button asChild>
           <Link href="/auth/login">Iniciar Sesión</Link>
@@ -143,7 +143,7 @@ export function WishlistView() {
     return (
       <div className="text-center py-12">
         <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-        <h2 className="text-2xl font-semibold mb-2">Tu lista de deseos está vacía</h2>
+        <h2 className="text-2xl font-semibold mb-2">No tienes favoritos aún</h2>
         <p className="text-muted-foreground mb-6">
           Agrega productos desde el catálogo haciendo clic en el corazón
         </p>

@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+'use server'
+
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -19,7 +21,7 @@ if (!supabaseAnonKey || supabaseAnonKey === 'your_supabase_anon_key') {
 export async function createClient() {
   const cookieStore = await cookies()
   
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       storage: {
         getItem: (key: string) => {

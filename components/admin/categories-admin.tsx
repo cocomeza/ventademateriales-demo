@@ -369,16 +369,16 @@ export function CategoriesAdmin() {
               <div className="grid gap-2">
                 <Label htmlFor="parent_id">Categoría Padre</Label>
                 <Select
-                  value={formData.parent_id}
+                  value={formData.parent_id || "none"}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, parent_id: value })
+                    setFormData({ ...formData, parent_id: value === "none" ? "" : value })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Ninguna (raíz)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ninguna (raíz)</SelectItem>
+                    <SelectItem value="none">Ninguna (raíz)</SelectItem>
                     {categories
                       .filter((c) => c.id !== editingCategory?.id)
                       .map((category) => (

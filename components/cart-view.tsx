@@ -86,13 +86,13 @@ export function CartView() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="lg:col-span-2 space-y-3 sm:space-y-4">
         {items.map((item) => (
           <Card key={item.id}>
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                <div className="relative w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="relative w-full sm:w-24 h-48 sm:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                   {item.image_url ? (
                     <Image
                       src={item.image_url}
@@ -107,18 +107,21 @@ export function CartView() {
                   )}
                 </div>
 
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
-                  <p className="text-lg font-bold mb-4">
-                    {formatPrice(item.price)}
-                  </p>
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-semibold text-base sm:text-lg mb-1">{item.name}</h3>
+                    <p className="text-base sm:text-lg font-bold mb-2 sm:mb-4">
+                      {formatPrice(item.price)}
+                    </p>
+                  </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={() => decrement(item.id)}
+                        aria-label="Disminuir cantidad"
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -129,19 +132,21 @@ export function CartView() {
                         variant="outline"
                         size="icon"
                         onClick={() => increment(item.id)}
+                        aria-label="Aumentar cantidad"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <span className="text-lg font-bold">
+                    <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                      <span className="text-base sm:text-lg font-bold">
                         {formatPrice(item.price * item.quantity)}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemove(item.id, item.name)}
+                        aria-label="Eliminar producto"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -156,10 +161,10 @@ export function CartView() {
 
       <div className="lg:col-span-1">
         <Card>
-          <CardHeader>
-            <CardTitle>Resumen del pedido</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Resumen del pedido</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{formatPrice(subtotal)}</span>

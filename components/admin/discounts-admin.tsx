@@ -486,11 +486,11 @@ export function DiscountsAdmin() {
               <div className="grid gap-2">
                 <Label htmlFor="product_id">Producto Específico</Label>
                 <Select
-                  value={formData.product_id}
+                  value={formData.product_id || "all"}
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      product_id: value,
+                      product_id: value === "all" ? "" : value,
                       category: "",
                     })
                   }
@@ -499,7 +499,7 @@ export function DiscountsAdmin() {
                     <SelectValue placeholder="Todos los productos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos los productos</SelectItem>
+                    <SelectItem value="all">Todos los productos</SelectItem>
                     {products.map((product) => (
                       <SelectItem key={product.id} value={product.id}>
                         {product.name}
@@ -512,11 +512,11 @@ export function DiscountsAdmin() {
               <div className="grid gap-2">
                 <Label htmlFor="category">Categoría</Label>
                 <Select
-                  value={formData.category}
+                  value={formData.category || "all"}
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      category: value,
+                      category: value === "all" ? "" : value,
                       product_id: "",
                     })
                   }
@@ -526,7 +526,7 @@ export function DiscountsAdmin() {
                     <SelectValue placeholder="Todas las categorías" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas las categorías</SelectItem>
+                    <SelectItem value="all">Todas las categorías</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -539,16 +539,16 @@ export function DiscountsAdmin() {
               <div className="grid gap-2">
                 <Label htmlFor="customer_id">Cliente Específico</Label>
                 <Select
-                  value={formData.customer_id}
+                  value={formData.customer_id || "all"}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, customer_id: value })
+                    setFormData({ ...formData, customer_id: value === "all" ? "" : value })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos los clientes" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos los clientes</SelectItem>
+                    <SelectItem value="all">Todos los clientes</SelectItem>
                     {customers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         {customer.name}

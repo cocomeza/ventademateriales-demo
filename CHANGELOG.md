@@ -33,7 +33,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Gestión de categorías y productos
 - Gestión de pedidos con historial
 - Importación/Exportación de datos
-- Lista de deseos
+- Favoritos (anteriormente "Lista de deseos")
 - Testing con Vitest y Playwright
 - Monitoreo con Sentry
 

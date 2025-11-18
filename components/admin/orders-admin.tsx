@@ -194,13 +194,13 @@ export function OrdersAdmin() {
         const newStock = previousStock + item.quantity;
         
         // Actualizar stock
-        await supabase
-          .from("products")
+        await (supabase
+          .from("products") as any)
           .update({ stock: newStock })
           .eq("id", item.id);
 
         // Registrar movimiento
-        await supabase.from("inventory_movements").insert({
+        await (supabase.from("inventory_movements") as any).insert({
           product_id: item.id,
           movement_type: "return",
           quantity: item.quantity,

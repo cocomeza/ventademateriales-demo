@@ -97,7 +97,7 @@ export function InventoryManagement() {
 
         if (!existingAlert) {
           // Crear nueva alerta
-          await supabase.from("stock_alerts").insert({
+          await (supabase.from("stock_alerts") as any).insert({
             product_id: product.id,
             threshold: product.min_stock,
             notified: false,

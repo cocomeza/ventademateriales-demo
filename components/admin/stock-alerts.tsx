@@ -77,8 +77,8 @@ export function StockAlerts() {
 
         if (!existingAlert) {
           // Crear nueva alerta
-          const { data: newAlert, error: createError } = await supabase
-            .from("stock_alerts")
+          const { data: newAlert, error: createError } = await (supabase
+            .from("stock_alerts") as any)
             .insert({
               product_id: product.id,
               threshold: product.min_stock,

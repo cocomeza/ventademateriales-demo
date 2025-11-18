@@ -209,7 +209,7 @@ export function CustomersAdmin() {
     }
 
     try {
-      const { error } = await supabase.from("customers").delete().eq("id", id);
+      const { error } = await (supabase.from("customers") as any).delete().eq("id", id);
 
       if (error) throw error;
       toast({

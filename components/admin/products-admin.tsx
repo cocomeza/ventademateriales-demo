@@ -382,7 +382,7 @@ export function ProductsAdmin() {
     }
 
     try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
+      const { error } = await (supabase.from("products") as any).delete().eq("id", id);
 
       if (error) throw error;
       toast({

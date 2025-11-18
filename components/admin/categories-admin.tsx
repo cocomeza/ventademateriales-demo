@@ -203,7 +203,7 @@ export function CategoriesAdmin() {
     if (!confirm("¿Estás seguro de eliminar esta categoría? Los productos asociados no se eliminarán.")) return;
 
     try {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
+      const { error } = await (supabase.from("categories") as any).delete().eq("id", id);
 
       if (error) throw error;
       toast({

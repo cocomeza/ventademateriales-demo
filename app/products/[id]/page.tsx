@@ -41,7 +41,7 @@ export async function generateMetadata({
         title: product.name,
         description: product.description || `Compra ${product.name} en MaterialesYA`,
         url: productUrl,
-        type: "product",
+        type: "website",
         images: [
           {
             url: mainImage,

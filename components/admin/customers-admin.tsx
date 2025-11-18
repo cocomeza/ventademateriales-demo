@@ -28,16 +28,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Plus, Pencil, Trash2, Eye, Package, Calendar, DollarSign } from "lucide-react";
 import { Customer, Order } from "@/types";
 
-interface CustomerWithStats extends Customer {
-  totalOrders: number;
-  totalSpent: number;
-  lastOrder: string | null;
-}
-
 export function CustomersAdmin() {
-  const [customers, setCustomers] = useState<CustomerWithStats[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithStats | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -67,36 +61,7 @@ export function CustomersAdmin() {
 
         if (customersError) throw customersError;
 
-        // Cargar pedidos para calcular estadísticas
-        const { data: orders, error: ordersError } = await (supabase
-          .from("orders") as any)
-          .select("*");
-
-        if (ordersError) throw ordersError;
-
-        // Calcular estadísticas por cliente
-        const customersWithStats: CustomerWithStats[] = (customersData || []).map((customer) => {
-          const customerOrders = (orders as any[])?.filter(
-            (o: any) => o.customer_email === customer.email || o.customer_id === customer.id
-          ) || [];
-
-          const totalOrders = customerOrders.length;
-          const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-          const lastOrder = customerOrders.length > 0
-            ? customerOrders.sort((a, b) => 
-                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-              )[0].created_at
-            : null;
-
-          return {
-            ...customer,
-            totalOrders,
-            totalSpent,
-            lastOrder,
-          };
-        });
-
-        setCustomers(customersWithStats);
+        setCustomers(customersData || []);
       }
     } catch (error) {
       console.error("Error loading customers:", error);
@@ -105,7 +70,7 @@ export function CustomersAdmin() {
     }
   };
 
-  const loadCustomerOrders = async (customer: CustomerWithStats) => {
+  const loadCustomerOrders = async (customer: Customer) => {
     if (!isSupabaseConfigured() || !supabase) return;
 
     try {
@@ -374,8 +339,6 @@ export function CustomersAdmin() {
                 <TableHead>Cliente</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Teléfono</TableHead>
-                <TableHead>Pedidos</TableHead>
-                <TableHead>Total Gastado</TableHead>
                 <TableHead>Último Pedido</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -395,13 +358,11 @@ export function CustomersAdmin() {
                     </TableCell>
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>{customer.phone || "N/A"}</TableCell>
-                    <TableCell>{customer.totalOrders}</TableCell>
-                    <TableCell className="font-semibold">
-                      {formatPrice(customer.totalSpent)}
-                    </TableCell>
+                    <TableCell>-</TableCell>
+                    <TableCell>-</TableCell>
                     <TableCell>
-                      {customer.lastOrder
-                        ? new Date(customer.lastOrder).toLocaleDateString(
+                      {customer.created_at
+                        ? new Date(customer.created_at).toLocaleDateString(
                             "es-AR"
                           )
                         : "N/A"}
@@ -467,26 +428,12 @@ export function CustomersAdmin() {
               {/* Resumen del cliente */}
               <Card>
                 <CardContent className="p-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <Package className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-2xl font-bold">{selectedCustomer.totalOrders}</p>
-                      <p className="text-sm text-muted-foreground">Total Pedidos</p>
-                    </div>
-                    <div className="text-center">
-                      <DollarSign className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-2xl font-bold">{formatPrice(selectedCustomer.totalSpent)}</p>
-                      <p className="text-sm text-muted-foreground">Total Gastado</p>
-                    </div>
-                    <div className="text-center">
-                      <Calendar className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-lg font-semibold">
-                        {selectedCustomer.lastOrder
-                          ? new Date(selectedCustomer.lastOrder).toLocaleDateString("es-AR")
-                          : "N/A"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Último Pedido</p>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Cliente registrado el {selectedCustomer.created_at
+                        ? new Date(selectedCustomer.created_at).toLocaleDateString("es-AR")
+                        : "N/A"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

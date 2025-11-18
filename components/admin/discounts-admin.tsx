@@ -180,8 +180,8 @@ export function DiscountsAdmin() {
       };
 
       if (editingDiscount) {
-        const { error } = await supabase
-          .from("discounts")
+        const { error } = await (supabase
+          .from("discounts") as any)
           .update(discountData)
           .eq("id", editingDiscount.id);
 
@@ -191,7 +191,7 @@ export function DiscountsAdmin() {
           description: "El descuento se actualizó correctamente",
         });
       } else {
-        const { error } = await supabase.from("discounts").insert(discountData);
+        const { error } = await (supabase.from("discounts") as any).insert(discountData);
 
         if (error) throw error;
         toast({

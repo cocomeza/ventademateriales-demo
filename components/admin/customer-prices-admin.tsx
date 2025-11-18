@@ -141,8 +141,8 @@ export function CustomerPricesAdmin() {
       };
 
       if (editingPrice) {
-        const { error } = await supabase
-          .from("customer_prices")
+        const { error } = await (supabase
+          .from("customer_prices") as any)
           .update(priceData)
           .eq("id", editingPrice.id);
 
@@ -152,8 +152,8 @@ export function CustomerPricesAdmin() {
           description: "El precio se actualizó correctamente",
         });
       } else {
-        const { error } = await supabase
-          .from("customer_prices")
+        const { error } = await (supabase
+          .from("customer_prices") as any)
           .insert(priceData);
 
         if (error) throw error;

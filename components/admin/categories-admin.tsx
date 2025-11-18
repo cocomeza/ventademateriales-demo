@@ -159,7 +159,7 @@ export function CategoriesAdmin() {
       };
 
       if (editingCategory) {
-        // @ts-expect-error - Supabase types inference issue
+        // @ts-ignore - Supabase types inference issue
         const { error } = await supabase
           .from("categories")
           .update(updateData)
@@ -171,7 +171,7 @@ export function CategoriesAdmin() {
           description: "La categoría se actualizó correctamente",
         });
       } else {
-        // @ts-expect-error - Supabase types inference issue
+        // @ts-ignore - Supabase types inference issue
         const { error } = await supabase.from("categories").insert(updateData);
 
         if (error) throw error;

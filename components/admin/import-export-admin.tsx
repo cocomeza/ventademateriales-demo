@@ -148,8 +148,8 @@ export function ImportExportAdmin() {
         image_url: row.image_url || null,
       }));
 
-      const { error } = await supabase
-        .from("products")
+      const { error } = await (supabase
+        .from("products") as any)
         .insert(productsToInsert);
 
       if (error) throw error;

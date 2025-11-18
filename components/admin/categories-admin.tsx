@@ -148,7 +148,7 @@ export function CategoriesAdmin() {
 
     try {
       const slug = formData.slug || generateSlug(formData.name);
-      const categoryData = {
+      const categoryData: Partial<Category> = {
         name: formData.name,
         description: formData.description || null,
         slug,
@@ -161,7 +161,15 @@ export function CategoriesAdmin() {
       if (editingCategory) {
         const { error } = await supabase
           .from("categories")
-          .update(categoryData)
+          .update({
+            name: categoryData.name,
+            description: categoryData.description,
+            slug: categoryData.slug,
+            parent_id: categoryData.parent_id,
+            display_order: categoryData.display_order,
+            active: categoryData.active,
+            image_url: categoryData.image_url,
+          })
           .eq("id", editingCategory.id);
 
         if (error) throw error;
@@ -170,7 +178,15 @@ export function CategoriesAdmin() {
           description: "La categoría se actualizó correctamente",
         });
       } else {
-        const { error } = await supabase.from("categories").insert(categoryData);
+        const { error } = await supabase.from("categories").insert({
+          name: categoryData.name,
+          description: categoryData.description,
+          slug: categoryData.slug,
+          parent_id: categoryData.parent_id,
+          display_order: categoryData.display_order,
+          active: categoryData.active,
+          image_url: categoryData.image_url,
+        });
 
         if (error) throw error;
         toast({

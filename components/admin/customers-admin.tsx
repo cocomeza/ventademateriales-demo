@@ -165,8 +165,8 @@ export function CustomersAdmin() {
       };
 
       if (editingCustomer) {
-        const { error } = await supabase
-          .from("customers")
+        const { error } = await (supabase
+          .from("customers") as any)
           .update(customerData)
           .eq("id", editingCustomer.id);
 
@@ -176,7 +176,7 @@ export function CustomersAdmin() {
           description: "El cliente se actualizó correctamente",
         });
       } else {
-        const { error } = await supabase.from("customers").insert(customerData);
+        const { error } = await (supabase.from("customers") as any).insert(customerData);
 
         if (error) throw error;
         toast({

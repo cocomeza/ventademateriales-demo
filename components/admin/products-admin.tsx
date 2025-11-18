@@ -59,6 +59,7 @@ export function ProductsAdmin() {
   const [productImages, setProductImages] = useState<Array<{ url: string; alt_text: string; display_order: number }>>([]);
   const [productVariants, setProductVariants] = useState<Array<{ name: string; variant_type: 'size' | 'color' | 'model' | 'other'; value: string; price_modifier: string; stock: string; sku: string; barcode: string }>>([]);
   const [uploadingImageIndex, setUploadingImageIndex] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -193,6 +194,8 @@ export function ProductsAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (saving) return; // Prevenir múltiples submits
+
     if (!isSupabaseConfigured() || !supabase) {
       toast({
         title: "Error",
@@ -202,16 +205,56 @@ export function ProductsAdmin() {
       return;
     }
 
+    // Validación básica
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "El nombre es requerido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.category) {
+      toast({
+        title: "Error",
+        description: "La categoría es requerida",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.base_price || isNaN(parseFloat(formData.base_price)) || parseFloat(formData.base_price) <= 0) {
+      toast({
+        title: "Error",
+        description: "El precio base debe ser un número válido mayor a 0",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.stock || isNaN(parseInt(formData.stock)) || parseInt(formData.stock) < 0) {
+      toast({
+        title: "Error",
+        description: "El stock debe ser un número válido mayor o igual a 0",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+
     try {
+      console.log("Iniciando guardado de producto...", { formData, editingProduct });
       const productData: ProductInsert = {
-        name: formData.name,
-        description: formData.description || null,
+        name: formData.name.trim(),
+        description: formData.description?.trim() || null,
         base_price: parseFloat(formData.base_price),
-        wholesale_price: formData.wholesale_price ? parseFloat(formData.wholesale_price) : null,
+        wholesale_price: formData.wholesale_price && formData.wholesale_price.trim() ? parseFloat(formData.wholesale_price) : null,
         stock: parseInt(formData.stock),
         min_stock: parseInt(formData.min_stock) || 10,
-        sku: formData.sku || null,
-        barcode: formData.barcode || null,
+        sku: formData.sku?.trim() || null,
+        barcode: formData.barcode?.trim() || null,
         category: formData.category,
       };
 
@@ -311,13 +354,18 @@ export function ProductsAdmin() {
       }
 
       setDialogOpen(false);
-      loadProducts();
+      await loadProducts();
+      console.log("Producto guardado exitosamente");
     } catch (error: any) {
+      console.error("Error al guardar producto:", error);
       toast({
         title: "Error",
         description: error.message || "Error al guardar el producto",
         variant: "destructive",
+        duration: 5000,
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -373,7 +421,7 @@ export function ProductsAdmin() {
               Nuevo Producto
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? "Editar Producto" : "Nuevo Producto"}
@@ -810,11 +858,19 @@ export function ProductsAdmin() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={saving}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">
-                  {editingProduct ? "Actualizar" : "Crear"}
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {editingProduct ? "Actualizando..." : "Creando..."}
+                    </>
+                  ) : (
+                    editingProduct ? "Actualizar" : "Crear"
+                  )}
                 </Button>
               </DialogFooter>
             </form>

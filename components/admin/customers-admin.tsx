@@ -68,16 +68,16 @@ export function CustomersAdmin() {
         if (customersError) throw customersError;
 
         // Cargar pedidos para calcular estadísticas
-        const { data: orders, error: ordersError } = await supabase
-          .from("orders")
+        const { data: orders, error: ordersError } = await (supabase
+          .from("orders") as any)
           .select("*");
 
         if (ordersError) throw ordersError;
 
         // Calcular estadísticas por cliente
         const customersWithStats: CustomerWithStats[] = (customersData || []).map((customer) => {
-          const customerOrders = orders?.filter(
-            (o) => o.customer_email === customer.email || o.customer_id === customer.id
+          const customerOrders = (orders as any[])?.filter(
+            (o: any) => o.customer_email === customer.email || o.customer_id === customer.id
           ) || [];
 
           const totalOrders = customerOrders.length;

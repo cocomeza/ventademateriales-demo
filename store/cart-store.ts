@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CartItem, Product, Discount, CustomerPrice } from '@/types';
+import { CartItem, Product, CustomerPrice } from '@/types';
 import { calculateCartTotal, PricingContext } from '@/lib/pricing';
 
 interface CartStore {
   items: CartItem[];
   products: Product[];
-  discounts: Discount[];
   customerPrices: CustomerPrice[];
   customerId?: string;
   isWholesale: boolean;
@@ -16,7 +15,6 @@ interface CartStore {
   decrement: (productId: string) => void;
   clearCart: () => void;
   setProducts: (products: Product[]) => void;
-  setDiscounts: (discounts: Discount[]) => void;
   setCustomerPrices: (prices: CustomerPrice[]) => void;
   setCustomerId: (id: string | undefined) => void;
   setIsWholesale: (value: boolean) => void;
@@ -32,7 +30,6 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       products: [],
-      discounts: [],
       customerPrices: [],
       customerId: undefined,
       isWholesale: false,
@@ -85,9 +82,6 @@ export const useCartStore = create<CartStore>()(
       setProducts: (products) => {
         set({ products });
       },
-      setDiscounts: (discounts) => {
-        set({ discounts });
-      },
       setCustomerPrices: (customerPrices) => {
         set({ customerPrices });
       },
@@ -102,7 +96,6 @@ export const useCartStore = create<CartStore>()(
         return {
           customerId: state.customerId,
           isWholesale: state.isWholesale,
-          discounts: state.discounts,
           customerPrices: state.customerPrices,
         };
       },

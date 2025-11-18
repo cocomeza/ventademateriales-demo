@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { mockProducts } from "@/lib/mock-data";
-import { Product, Discount } from "@/types";
+import { Product } from "@/types";
 
 export function CartView() {
   const items = useCartStore((state) => state.items);
@@ -21,19 +21,16 @@ export function CartView() {
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const subtotal = useCartStore((state) => state.getSubtotal());
   const total = useCartStore((state) => state.getTotal());
-  const discountAmount = useCartStore((state) => state.getDiscountAmount());
   const setProducts = useCartStore((state) => state.setProducts);
-  const setDiscounts = useCartStore((state) => state.setDiscounts);
   const { toast } = useToast();
 
   useEffect(() => {
-    loadProductsAndDiscounts();
+    loadProducts();
   }, []);
 
-  const loadProductsAndDiscounts = async () => {
+  const loadProducts = async () => {
     try {
       let products: Product[] = [];
-      let discounts: Discount[] = [];
 
       if (isSupabaseConfigured() && supabase) {
         // Cargar productos
@@ -41,23 +38,13 @@ export function CartView() {
           .from("products")
           .select("*");
         products = productsData || [];
-
-        // Cargar descuentos activos
-        const now = new Date().toISOString();
-        const { data: discountsData } = await supabase
-          .from("discounts")
-          .select("*")
-          .eq("active", true)
-          .or(`start_date.is.null,end_date.is.null,start_date.lte.${now},end_date.gte.${now}`);
-        discounts = discountsData || [];
       } else {
         products = mockProducts;
       }
 
       setProducts(products);
-      setDiscounts(discounts);
     } catch (error) {
-      console.error("Error loading products/discounts:", error);
+      console.error("Error loading products:", error);
       setProducts(mockProducts);
     }
   };
@@ -169,19 +156,13 @@ export function CartView() {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{formatPrice(subtotal)}</span>
             </div>
-            {discountAmount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Descuento</span>
-                <span className="font-medium">-{formatPrice(discountAmount)}</span>
-              </div>
-            )}
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
             </div>
-            <CheckoutDialog items={items} total={total} subtotal={subtotal} discountAmount={discountAmount} />
+            <CheckoutDialog items={items} total={total} subtotal={subtotal} discountAmount={0} />
           </CardContent>
         </Card>
       </div>

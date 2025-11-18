@@ -108,7 +108,6 @@ export default async function AdminDashboard() {
               <li><strong>Clientes:</strong> Ver información de clientes y su historial</li>
               <li><strong>Categorías:</strong> Gestionar categorías de productos</li>
               <li><strong>Alertas Stock:</strong> Ver productos con stock bajo</li>
-              <li><strong>Descuentos:</strong> Crear y gestionar promociones</li>
               <li><strong>Precios Cliente:</strong> Configurar precios personalizados</li>
               <li><strong>Importar/Exportar:</strong> Exportar datos o importar productos desde CSV</li>
             </ul>

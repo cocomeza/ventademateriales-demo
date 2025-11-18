@@ -16,7 +16,6 @@ export function AdminNavbar() {
     { href: "/admin/inventory", icon: Warehouse, label: "Inventario" },
     { href: "/admin/stock-alerts", icon: Bell, label: "Alertas Stock" },
     { href: "/admin/categories", icon: FolderTree, label: "Categorías" },
-    { href: "/admin/discounts", icon: Tag, label: "Descuentos" },
     { href: "/admin/customer-prices", icon: DollarSign, label: "Precios Cliente" },
     { href: "/admin/import-export", icon: FileDown, label: "Importar/Exportar" },
   ];

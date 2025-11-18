@@ -1,9 +1,8 @@
-import { Product, Discount, CustomerPrice, CartItem } from "@/types";
+import { Product, CustomerPrice, CartItem } from "@/types";
 
 export interface PricingContext {
   customerId?: string;
   isWholesale?: boolean;
-  discounts?: Discount[];
   customerPrices?: CustomerPrice[];
 }
 
@@ -35,56 +34,15 @@ export function calculateProductPrice(
 }
 
 /**
- * Calcula el descuento aplicable a un producto
+ * Calcula el descuento aplicable a un producto (siempre retorna 0, descuentos deshabilitados)
  */
 export function calculateDiscount(
   product: Product,
   quantity: number,
   subtotal: number,
   context: PricingContext = {}
-): { discount: number; appliedDiscount: Discount | null } {
-  const { discounts = [] } = context;
-  let maxDiscount = 0;
-  let appliedDiscount: Discount | null = null;
-
-  const now = new Date();
-
-  for (const discount of discounts) {
-    // Verificar si el descuento está activo
-    if (!discount.active) continue;
-
-    // Verificar fechas
-    if (discount.start_date && new Date(discount.start_date) > now) continue;
-    if (discount.end_date && new Date(discount.end_date) < now) continue;
-
-    // Verificar si aplica al producto
-    if (discount.product_id && discount.product_id !== product.id) continue;
-    if (discount.category && discount.category !== product.category) continue;
-
-    // Verificar condiciones de cantidad/monto
-    if (discount.min_quantity && quantity < discount.min_quantity) continue;
-    if (discount.min_amount && subtotal < discount.min_amount) continue;
-
-    // Calcular descuento
-    let discountAmount = 0;
-    const productPrice = calculateProductPrice(product, context);
-
-    if (discount.discount_type === "percentage") {
-      discountAmount = (productPrice * quantity * discount.discount_value) / 100;
-    } else if (discount.discount_type === "fixed") {
-      discountAmount = discount.discount_value * quantity;
-    } else if (discount.discount_type === "volume") {
-      // Descuento por volumen: ejemplo 10% si compras más de 10 unidades
-      discountAmount = (productPrice * quantity * discount.discount_value) / 100;
-    }
-
-    if (discountAmount > maxDiscount) {
-      maxDiscount = discountAmount;
-      appliedDiscount = discount;
-    }
-  }
-
-  return { discount: maxDiscount, appliedDiscount };
+): { discount: number; appliedDiscount: null } {
+  return { discount: 0, appliedDiscount: null };
 }
 
 /**
@@ -105,14 +63,6 @@ export function calculateCartTotal(
     const itemPrice = calculateProductPrice(product, context);
     const itemSubtotal = itemPrice * item.quantity;
     subtotal += itemSubtotal;
-
-    const { discount } = calculateDiscount(
-      product,
-      item.quantity,
-      itemSubtotal,
-      context
-    );
-    totalDiscount += discount;
   }
 
   return {

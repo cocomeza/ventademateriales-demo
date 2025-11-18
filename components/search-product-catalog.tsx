@@ -89,7 +89,7 @@ export function SearchProductCatalog({ searchTerm }: SearchProductCatalogProps) 
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground text-lg">
-          No se encontraron productos para "{searchTerm}".
+          No se encontraron productos para &quot;{searchTerm}&quot;.
         </p>
       </div>
     );

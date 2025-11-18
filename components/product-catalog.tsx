@@ -435,7 +435,7 @@ export function ProductCatalog() {
               <span className="text-sm font-semibold text-muted-foreground">Filtros activos:</span>
               {searchTerm && (
                 <div className="flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                  Búsqueda: "{searchTerm}"
+                  Búsqueda: &quot;{searchTerm}&quot;
                   <button onClick={() => setSearchTerm("")} className="ml-1 hover:text-primary/80">
                     <X className="h-3 w-3" />
                   </button>

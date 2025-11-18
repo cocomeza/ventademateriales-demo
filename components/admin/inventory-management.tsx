@@ -105,8 +105,8 @@ export function InventoryManagement() {
         }
       } else if (product.stock > product.min_stock) {
         // Resolver alertas si el stock se recuperó
-        await supabase
-          .from("stock_alerts")
+        await (supabase
+          .from("stock_alerts") as any)
           .update({
             resolved: true,
             resolved_at: new Date().toISOString(),

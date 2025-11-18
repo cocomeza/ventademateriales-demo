@@ -31,22 +31,49 @@ export function Navbar() {
 
   useEffect(() => {
     if (isSupabaseConfigured() && supabase) {
-      // Cargar usuario inicial
+      // Cargar usuario inicial - primero verificar sesión, luego usuario
       const loadUser = async () => {
         try {
-          const { data: { user }, error } = await supabase.auth.getUser();
-          if (error) {
-            console.error("Error getting user:", error);
+          // Primero obtener la sesión para asegurar que esté sincronizada
+          const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error("Error getting session:", sessionError);
             setUser(null);
             setUserRole(null);
             return;
           }
-          setUser(user);
-          if (user) {
-            const role = await getUserRole();
-            setUserRole(role);
+          
+          // Si hay sesión, obtener el usuario
+          if (initialSession?.user) {
+            setUser(initialSession.user);
+            try {
+              const role = await getUserRole();
+              setUserRole(role);
+            } catch (error) {
+              console.error("Error getting role:", error);
+              // Mantener el usuario aunque falle obtener el rol
+            }
           } else {
-            setUserRole(null);
+            // Si no hay sesión, intentar obtener usuario directamente (por si acaso)
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+              console.error("Error getting user:", error);
+              setUser(null);
+              setUserRole(null);
+              return;
+            }
+            setUser(user);
+            if (user) {
+              try {
+                const role = await getUserRole();
+                setUserRole(role);
+              } catch (error) {
+                console.error("Error getting role:", error);
+              }
+            } else {
+              setUserRole(null);
+            }
           }
         } catch (error) {
           console.error("Error loading user:", error);
@@ -64,23 +91,53 @@ export function Navbar() {
         console.log("Auth state changed:", event, session?.user?.email || "sin usuario");
         console.log("Sesión completa:", session ? "existe" : "no existe");
         
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          console.log("Usuario autenticado, obteniendo rol...");
-          const role = await getUserRole();
-          setUserRole(role);
-          console.log("Rol obtenido:", role);
-        } else {
-          setUserRole(null);
+        // Manejar diferentes eventos de autenticación
+        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          // Usuario cerró sesión o fue eliminado - solo si realmente no hay sesión
+          if (!session) {
+            setUser(null);
+            setUserRole(null);
+          }
+          return;
         }
         
-        // Si el evento es SIGNED_IN, recargar la página para actualizar el estado
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log("Usuario inició sesión, recargando página...");
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
+        // Para INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED
+        // siempre actualizar el estado con la sesión actual
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          // Si hay sesión, actualizar el estado
+          if (session?.user) {
+            setUser(session.user);
+            console.log("Usuario autenticado, obteniendo rol...");
+            try {
+              const role = await getUserRole();
+              setUserRole(role);
+              console.log("Rol obtenido:", role);
+            } catch (error) {
+              console.error("Error obteniendo rol:", error);
+              // Mantener el usuario aunque falle obtener el rol
+            }
+          } else {
+            // Si no hay sesión en estos eventos, limpiar el estado
+            setUser(null);
+            setUserRole(null);
+          }
+        } else {
+          // Para otros eventos, actualizar el estado normalmente
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            try {
+              const role = await getUserRole();
+              setUserRole(role);
+            } catch (error) {
+              console.error("Error obteniendo rol:", error);
+            }
+          } else {
+            setUserRole(null);
+          }
         }
+        
+        // No recargar la página automáticamente - el estado se actualiza con React
+        // Esto evita que se pierda la sesión por recargas innecesarias
       });
 
       return () => subscription.unsubscribe();
@@ -118,17 +175,20 @@ export function Navbar() {
                 Productos
               </Button>
             </Link>
-            <Link href="/contacto">
-              <Button
-                variant={pathname === "/contacto" ? "default" : "ghost"}
-                size="sm"
-                className={pathname === "/contacto" ? "font-semibold shadow-md" : "font-medium"}
-                aria-label="Ir a contacto"
-              >
-                <Phone className="h-4 w-4 mr-1.5" aria-hidden="true" />
-                Contacto
-              </Button>
-            </Link>
+            {/* Ocultar contacto para admin y seller */}
+            {userRole !== "admin" && userRole !== "seller" && (
+              <Link href="/contacto">
+                <Button
+                  variant={pathname === "/contacto" ? "default" : "ghost"}
+                  size="sm"
+                  className={pathname === "/contacto" ? "font-semibold shadow-md" : "font-medium"}
+                  aria-label="Ir a contacto"
+                >
+                  <Phone className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                  Contacto
+                </Button>
+              </Link>
+            )}
 
             {user && (
               <>
@@ -293,15 +353,18 @@ export function Navbar() {
                       Productos
                     </Button>
                   </Link>
-                  <Link href="/contacto" onClick={() => setMobileMenuOpen(false)}>
-                    <Button 
-                      variant={pathname === "/contacto" ? "default" : "ghost"} 
-                      className={`w-full justify-start font-semibold h-12 text-base ${pathname === "/contacto" ? "shadow-md" : "hover:bg-primary/10"}`}
-                    >
-                      <Phone className="h-5 w-5 mr-2" />
-                      Contacto
-                    </Button>
-                  </Link>
+                  {/* Ocultar contacto para admin y seller */}
+                  {userRole !== "admin" && userRole !== "seller" && (
+                    <Link href="/contacto" onClick={() => setMobileMenuOpen(false)}>
+                      <Button 
+                        variant={pathname === "/contacto" ? "default" : "ghost"} 
+                        className={`w-full justify-start font-semibold h-12 text-base ${pathname === "/contacto" ? "shadow-md" : "hover:bg-primary/10"}`}
+                      >
+                        <Phone className="h-5 w-5 mr-2" />
+                        Contacto
+                      </Button>
+                    </Link>
+                  )}
 
                   {user && (
                     <>

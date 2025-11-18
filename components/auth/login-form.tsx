@@ -16,6 +16,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -23,9 +24,12 @@ export function LoginForm() {
     e.preventDefault();
     
     // Prevenir múltiples envíos
-    if (loading) {
+    if (loading || submitted) {
+      console.log("Login ya en proceso, ignorando intento duplicado");
       return;
     }
+    
+    setSubmitted(true);
     
     if (!isSupabaseConfigured() || !supabase) {
       toast({
@@ -59,6 +63,7 @@ export function LoginForm() {
           variant: "destructive",
         });
         setLoading(false);
+        setSubmitted(false);
         return;
       }
 
@@ -109,10 +114,12 @@ export function LoginForm() {
           variant: "destructive",
           duration: 10000, // Mostrar por más tiempo si es error de configuración
         });
+        setLoading(false);
+        setSubmitted(false);
         return;
       }
 
-      if (data?.user) {
+      if (data?.user && data?.session) {
         console.log("Login exitoso, usuario:", data.user.email);
         console.log("Datos de sesión:", data.session);
         
@@ -126,22 +133,38 @@ export function LoginForm() {
           const activeSession = sessionData?.session || data.session;
           console.log("Sesión activa confirmada:", activeSession?.user?.email);
 
+          // Sincronizar la sesión con cookies inmediatamente
+          if (activeSession?.access_token) {
+            const maxAge = 3600; // 1 hora
+            const isSecure = window.location.protocol === 'https:';
+            document.cookie = `sb-access-token=${encodeURIComponent(activeSession.access_token)}; path=/; max-age=${maxAge}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+            if (activeSession.refresh_token) {
+              document.cookie = `sb-refresh-token=${encodeURIComponent(activeSession.refresh_token)}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+            }
+            console.log('Login: Cookies set immediately', {
+              hasAccessToken: !!activeSession.access_token,
+              hasRefreshToken: !!activeSession.refresh_token
+            });
+          }
+
       toast({
         title: "Sesión iniciada",
             description: `Bienvenido de vuelta, ${data.user.email}`,
-      });
+          });
 
-          // Esperar un momento para que el estado se propague
-          await new Promise(resolve => setTimeout(resolve, 300));
+          // Esperar un momento para que el estado se propague y se actualice en el navbar
+          await new Promise(resolve => setTimeout(resolve, 500));
           
-          // Redirigir
-      router.push("/");
+          // Redirigir usando router sin recargar la página completa
+          // Esto permite que React maneje el estado correctamente
+          const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/';
+          
+          // Resetear estados antes de redirigir
+          setLoading(false);
+          setSubmitted(false);
+          
+          router.push(redirectTo);
       router.refresh();
-          
-          // Forzar recarga después de un momento para asegurar que todo se actualice
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 800);
         } else {
           console.error("No se pudo obtener la sesión después del login");
           toast({
@@ -149,6 +172,8 @@ export function LoginForm() {
             description: "La sesión no se estableció correctamente. Intenta nuevamente.",
             variant: "destructive",
           });
+          setLoading(false);
+          setSubmitted(false);
         }
       } else {
         console.error("No se recibió información del usuario en la respuesta");
@@ -157,6 +182,8 @@ export function LoginForm() {
           description: "No se pudo obtener la información del usuario",
           variant: "destructive",
         });
+        setLoading(false);
+        setSubmitted(false);
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -165,8 +192,8 @@ export function LoginForm() {
         description: error.message || "Error inesperado al iniciar sesión",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
+      setSubmitted(false);
     }
   };
 
@@ -226,8 +253,8 @@ export function LoginForm() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 pt-6">
-          <Button type="submit" className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all" disabled={loading}>
-            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+          <Button type="submit" className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all" disabled={loading || submitted}>
+            {loading || submitted ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
           <div className="text-sm text-center space-y-2 w-full">
             <p className="text-muted-foreground">

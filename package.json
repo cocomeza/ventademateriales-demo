@@ -12,6 +12,7 @@
     "test:watch": "vitest watch",
     "test:e2e": "playwright test --project=e2e",
     "test:auth": "playwright test tests/e2e/auth.spec.ts --reporter=list",
+    "test:admin": "playwright test tests/e2e/admin-access.spec.ts --reporter=list",
     "test:comparator": "playwright test tests/e2e/product-comparator.spec.ts --reporter=list",
     "test:wishlist": "playwright test tests/e2e/wishlist.spec.ts --reporter=list",
     "test:checkout": "playwright test tests/e2e/checkout.spec.ts --reporter=list",

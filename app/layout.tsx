@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import { ConditionalFooter } from "@/components/conditional-footer";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SessionSync } from "@/components/session-sync";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -78,12 +79,14 @@ export default function RootLayout({
         >
           Saltar al contenido principal
         </a>
+        <SessionSync />
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main id="main-content" className="flex-1" tabIndex={-1}>
             {children}
           </main>
-          <Footer />
+          {/* Footer condicional: se oculta en rutas de admin */}
+          <ConditionalFooter />
         </div>
         <Toaster />
         </ThemeProvider>

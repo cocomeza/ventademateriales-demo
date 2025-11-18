@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Package, Users, ShoppingBag, FileDown, FileUp, Home, Warehouse, Tag, DollarSign, FolderTree, Bell } from "lucide-react";
+import { AdminNavbar } from "@/components/admin/admin-navbar";
 
 export default async function AdminLayout({
   children,
@@ -12,105 +10,58 @@ export default async function AdminLayout({
   // Verificar autenticación y permisos
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
+    // Primero verificar la sesión
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Error getting session:", sessionError);
       redirect("/auth/login?redirect=/admin");
     }
+    
+    if (!session || !session.user) {
+      console.log("No hay sesión activa, redirigiendo al login");
+      redirect("/auth/login?redirect=/admin");
+    }
+    
+    const user = session.user;
+    console.log("Usuario autenticado en admin layout:", user.email, "ID:", user.id);
 
     // Verificar rol de admin o seller
-    const { data: roleData } = await supabase
+    const { data: roleData, error: roleError } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle(); // Usar maybeSingle en lugar de single para evitar error si no existe
 
-    const userRole = roleData?.role || "customer";
-    
-    if (userRole !== "admin" && userRole !== "seller") {
+    console.log("Datos de rol obtenidos:", roleData);
+    console.log("Error al obtener rol:", roleError);
+
+    // Si hay un error que no sea "no encontrado", redirigir
+    if (roleError && roleError.code !== 'PGRST116') { // PGRST116 es "no rows returned"
+      console.error("Error getting user role:", roleError);
       redirect("/?error=unauthorized");
     }
+
+    const userRole = roleData?.role || "customer";
+    console.log("Rol del usuario:", userRole);
+    
+    if (userRole !== "admin" && userRole !== "seller") {
+      console.log("Usuario no tiene permisos de admin o seller, redirigiendo");
+      redirect("/?error=unauthorized");
+    }
+    
+    console.log("Acceso autorizado al panel de admin");
   } catch (error) {
-    // Si Supabase no está configurado, permitir acceso para desarrollo
+    // Si hay un error, redirigir al login para seguridad
     console.error("Error checking admin access:", error);
+    redirect("/auth/login?redirect=/admin");
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link href="/admin" className="text-2xl font-bold">
-                Panel de Administración
-              </Link>
-              <nav className="flex items-center space-x-4">
-                <Link href="/admin/products">
-                  <Button variant="ghost" size="sm">
-                    <Package className="h-4 w-4 mr-2" />
-                    Productos
-                  </Button>
-                </Link>
-                <Link href="/admin/orders">
-                  <Button variant="ghost" size="sm">
-                    <ShoppingBag className="h-4 w-4 mr-2" />
-                    Pedidos
-                  </Button>
-                </Link>
-                <Link href="/admin/customers">
-                  <Button variant="ghost" size="sm">
-                    <Users className="h-4 w-4 mr-2" />
-                    Clientes
-                  </Button>
-                </Link>
-                <Link href="/admin/inventory">
-                  <Button variant="ghost" size="sm">
-                    <Warehouse className="h-4 w-4 mr-2" />
-                    Inventario
-                  </Button>
-                </Link>
-                <Link href="/admin/stock-alerts">
-                  <Button variant="ghost" size="sm" className="relative">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Alertas Stock
-                  </Button>
-                </Link>
-                <Link href="/admin/categories">
-                  <Button variant="ghost" size="sm">
-                    <FolderTree className="h-4 w-4 mr-2" />
-                    Categorías
-                  </Button>
-                </Link>
-                <Link href="/admin/discounts">
-                  <Button variant="ghost" size="sm">
-                    <Tag className="h-4 w-4 mr-2" />
-                    Descuentos
-                  </Button>
-                </Link>
-                <Link href="/admin/customer-prices">
-                  <Button variant="ghost" size="sm">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Precios Cliente
-                  </Button>
-                </Link>
-                <Link href="/admin/import-export">
-                  <Button variant="ghost" size="sm">
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Importar/Exportar
-                  </Button>
-                </Link>
-              </nav>
-            </div>
-            <Link href="/">
-              <Button variant="outline" size="sm">
-                <Home className="h-4 w-4 mr-2" />
-                Volver al sitio
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-      <div className="container mx-auto px-4 py-8">{children}</div>
+      <AdminNavbar />
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">{children}</div>
     </div>
   );
 }

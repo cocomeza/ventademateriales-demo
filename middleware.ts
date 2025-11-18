@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Security headers
@@ -26,6 +29,65 @@ export function middleware(request: NextRequest) {
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
+
+  // Manejar autenticación de Supabase
+  if (supabaseUrl && supabaseAnonKey) {
+    // Leer cookies de sesión sincronizadas
+    const accessTokenCookie = request.cookies.get('sb-access-token');
+    const refreshTokenCookie = request.cookies.get('sb-refresh-token');
+    
+    // Si tenemos tokens sincronizados, establecerlos en el formato que Supabase espera
+    if (accessTokenCookie) {
+      const accessToken = decodeURIComponent(accessTokenCookie.value);
+      
+      // Obtener el project ref de la URL
+      const projectRef = supabaseUrl.split('//')[1]?.split('.')[0];
+      
+      if (projectRef) {
+        // Establecer la cookie en el formato estándar de Supabase para que el servidor la pueda leer
+        // Usar el formato: sb-{project-ref}-auth-token
+        const supabaseCookieName = `sb-${projectRef}-auth-token`;
+        
+        // Crear el objeto de sesión que Supabase espera
+        const sessionData = {
+          access_token: accessToken,
+          refresh_token: refreshTokenCookie ? decodeURIComponent(refreshTokenCookie.value) : accessToken,
+          expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hora desde ahora
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: null, // Se obtendrá del token
+        };
+        
+        // Establecer la cookie en el formato que Supabase espera
+        response.cookies.set(supabaseCookieName, JSON.stringify(sessionData), {
+          path: '/',
+          maxAge: 3600,
+          sameSite: 'lax',
+          httpOnly: false, // Debe ser false para que el cliente pueda leerla también
+          secure: request.nextUrl.protocol === 'https:',
+        });
+        
+        // También establecer las cookies de sincronización para mantenerlas actualizadas
+        response.cookies.set('sb-access-token', accessTokenCookie.value, {
+          path: '/',
+          maxAge: 3600,
+          sameSite: 'lax',
+          httpOnly: false,
+          secure: request.nextUrl.protocol === 'https:',
+        });
+        
+        if (refreshTokenCookie) {
+          response.cookies.set('sb-refresh-token', refreshTokenCookie.value, {
+            path: '/',
+            maxAge: 604800, // 7 días
+            sameSite: 'lax',
+            httpOnly: false,
+            secure: request.nextUrl.protocol === 'https:',
+          });
+        }
+      }
+    }
+  }
 
   return response;
 }

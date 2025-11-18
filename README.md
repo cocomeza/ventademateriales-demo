@@ -70,14 +70,14 @@ Plataforma web moderna para la gestión y venta de materiales de construcción. 
    ```
 
 2. **Instalar dependencias**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 3. **Configurar variables de entorno**
    
    Crea un archivo `.env.local` en la raíz del proyecto:
-   ```bash
+```bash
    cp .env.example .env.local
    ```
    
@@ -101,10 +101,10 @@ Plataforma web moderna para la gestión y venta de materiales de construcción. 
    - Producción: `https://tu-dominio.com/auth/callback`
 
 5. **Ejecutar en desarrollo**
-   ```bash
-   npm run dev
-   ```
-   
+```bash
+npm run dev
+```
+
    La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
 
 ## ⚙️ Configuración

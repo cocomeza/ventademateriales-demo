@@ -1,6 +1,5 @@
 import { ProductCatalog } from "@/components/product-catalog";
 import { PromotionalBanner } from "@/components/promotional-banner";
-import { CategoryShowcase } from "@/components/category-showcase";
 import { FeaturedProducts } from "@/components/featured-products";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
@@ -19,24 +18,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  let categories: any[] = [];
   let featuredProducts: any[] = [];
   
   try {
     const supabase = await createClient();
     
-    // Cargar categorías destacadas
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from("categories")
-      .select("id, name, slug, description")
-      .eq("active", true)
-      .order("name")
-      .limit(6);
-
-    if (!categoriesError && categoriesData) {
-      categories = categoriesData;
-    }
-
     // Cargar productos destacados (puedes agregar un campo "featured" en la BD)
     const { data: productsData, error: productsError } = await supabase
       .from("products")
@@ -68,24 +54,9 @@ export default async function Home() {
         linkUrl="/"
         linkText="Explorar Catálogo"
         badge="Nuevo"
-        variant="large"
-        className="mb-6 sm:mb-12"
+        variant="default"
+        className="mb-4 sm:mb-8"
       />
-
-      {/* Categorías Destacadas */}
-      {categories && categories.length > 0 && (
-        <CategoryShowcase
-          categories={categories.map((cat) => ({
-            id: cat.id,
-            name: cat.name,
-            slug: cat.slug || undefined,
-            description: cat.description || undefined,
-          }))}
-          title="Categorías Destacadas"
-          columns={3}
-          className="mb-6 sm:mb-12"
-        />
-      )}
 
       {/* Productos Destacados */}
       {featuredProducts && featuredProducts.length > 0 && (
@@ -94,15 +65,15 @@ export default async function Home() {
           title="Productos Destacados"
           showViewAll={true}
           viewAllUrl="/"
-          maxItems={8}
-          className="mb-6 sm:mb-12"
+          maxItems={6}
+          className="mb-4 sm:mb-8"
         />
       )}
 
       {/* Título y Catálogo Completo */}
-      <div className="mb-4 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Catálogo Completo</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+      <div className="mb-3 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Catálogo Completo</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Explora todos nuestros productos y encuentra lo que necesitas
         </p>
       </div>

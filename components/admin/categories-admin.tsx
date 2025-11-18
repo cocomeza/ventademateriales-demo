@@ -23,7 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Plus, Edit, Trash2, FolderTree } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, FolderTree, Upload } from "lucide-react";
+import { uploadImage } from "@/lib/supabase/storage";
 import {
   Select,
   SelectContent,
@@ -40,6 +41,7 @@ interface Category {
   parent_id: string | null;
   display_order: number;
   active: boolean;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +60,9 @@ export function CategoriesAdmin() {
     parent_id: "",
     display_order: "0",
     active: true,
+    image_url: "",
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -106,6 +110,7 @@ export function CategoriesAdmin() {
         parent_id: category.parent_id || "",
         display_order: category.display_order.toString(),
         active: category.active,
+        image_url: category.image_url || "",
       });
     } else {
       setEditingCategory(null);
@@ -116,6 +121,7 @@ export function CategoriesAdmin() {
         parent_id: "",
         display_order: "0",
         active: true,
+        image_url: "",
       });
     }
     setDialogOpen(true);
@@ -149,6 +155,7 @@ export function CategoriesAdmin() {
         parent_id: formData.parent_id || null,
         display_order: parseInt(formData.display_order) || 0,
         active: formData.active,
+        image_url: formData.image_url || null,
       };
 
       if (editingCategory) {
@@ -363,6 +370,107 @@ export function CategoriesAdmin() {
                 }
                 placeholder="Descripción de la categoría"
               />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="image_url">URL de Imagen</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="image_url"
+                  type="url"
+                  value={formData.image_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, image_url: e.target.value.trim() })
+                  }
+                  onBlur={(e) => {
+                    // Validar URL básica
+                    const url = e.target.value.trim();
+                    if (url && !url.match(/^https?:\/\/.+/i) && !url.startsWith('data:') && !url.startsWith('/')) {
+                      toast({
+                        title: "URL inválida",
+                        description: "La URL debe comenzar con http:// o https://",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  className="flex-1"
+                />
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="category-file-upload"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      setUploadingImage(true);
+                      const result = await uploadImage({
+                        file,
+                        folder: 'categories',
+                        bucket: 'images',
+                      });
+
+                      if (result.error) {
+                        toast({
+                          title: "Error al subir imagen",
+                          description: result.error,
+                          variant: "destructive",
+                        });
+                      } else if (result.url) {
+                        setFormData({ ...formData, image_url: result.url });
+                        toast({
+                          title: "Imagen subida",
+                          description: "La imagen se subió correctamente",
+                        });
+                      }
+                      setUploadingImage(false);
+                      // Limpiar input
+                      e.target.value = '';
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      document.getElementById('category-file-upload')?.click();
+                    }}
+                    disabled={uploadingImage}
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                URL de la imagen descriptiva de la categoría (se mostrará en el home) o sube una imagen directamente
+              </p>
+              {formData.image_url && formData.image_url.trim() !== "" && (
+                <div className="mt-2">
+                  <img
+                    src={formData.image_url}
+                    alt="Vista previa"
+                    className="w-full h-32 object-cover rounded-md border"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'flex items-center justify-center h-full text-xs text-muted-foreground p-2';
+                        placeholder.textContent = 'Error al cargar imagen';
+                        parent.appendChild(placeholder);
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

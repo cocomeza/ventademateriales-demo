@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Category {
@@ -36,23 +36,23 @@ export function CategoryShowcase({
   };
 
   return (
-    <section className={cn("py-8 md:py-12", className)} aria-labelledby="category-showcase-title">
+    <section className={cn("py-4 md:py-6", className)} aria-labelledby="category-showcase-title">
       {title && (
-        <h2 id="category-showcase-title" className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">
+        <h2 id="category-showcase-title" className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center">
           {title}
         </h2>
       )}
-      <div className={cn("grid gap-6", gridClasses[columns])}>
+      <div className={cn("grid gap-3 sm:gap-4", gridClasses[columns])}>
         {categories.map((category) => {
           const categoryUrl = category.slug ? `/categorias/${category.slug}` : `/?category=${category.id}`;
           
           return (
             <Card
               key={category.id}
-              className="group relative overflow-hidden hover:shadow-lg transition-all border-primary/10 hover:border-primary/30"
+              className="group relative overflow-hidden hover:shadow-md transition-all border-primary/10 hover:border-primary/30"
             >
               <Link href={categoryUrl} className="block" aria-label={`Ver categoría ${category.name}`}>
-                <div className="relative h-40 sm:h-48 md:h-64 overflow-hidden">
+                <div className="relative h-32 sm:h-36 md:h-40 overflow-hidden">
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
@@ -64,44 +64,30 @@ export function CategoryShowcase({
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                      <span className="text-4xl font-bold text-muted-foreground">
+                      <span className="text-3xl sm:text-4xl font-bold text-muted-foreground">
                         {category.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
-                  {/* Overlay con iconos */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
-                    <div className="bg-white/90 rounded-full p-3">
-                      <ShoppingCart className="h-5 w-5 text-primary" aria-hidden="true" />
-                    </div>
-                    <div className="bg-white/90 rounded-full p-3">
-                      <Heart className="h-5 w-5 text-primary" aria-hidden="true" />
-                    </div>
-                  </div>
                 </div>
-                <CardContent className="p-3 sm:p-4">
-                  <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                <CardContent className="p-2 sm:p-3">
+                  <h3 className="font-semibold text-base sm:text-lg mb-1 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
                   {category.description && (
-                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-1">
                       {category.description}
-                    </p>
-                  )}
-                  {category.productCount !== undefined && (
-                    <p className="text-xs text-muted-foreground">
-                      {category.productCount} {category.productCount === 1 ? "producto" : "productos"}
                     </p>
                   )}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mt-2 w-full group-hover:bg-primary group-hover:text-primary-foreground"
+                    className="mt-1 w-full text-xs sm:text-sm h-8 group-hover:bg-primary group-hover:text-primary-foreground"
                     asChild
                   >
                     <span>
                       Ver productos
-                      <ArrowRight className="ml-2 h-4 w-4 inline" aria-hidden="true" />
+                      <ArrowRight className="ml-1 h-3 w-3 inline" aria-hidden="true" />
                     </span>
                   </Button>
                 </CardContent>

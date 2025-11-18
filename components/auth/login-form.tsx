@@ -125,18 +125,18 @@ export function LoginForm() {
         if (sessionData?.session || data.session) {
           const activeSession = sessionData?.session || data.session;
           console.log("Sesión activa confirmada:", activeSession?.user?.email);
-          
-          toast({
-            title: "Sesión iniciada",
+
+      toast({
+        title: "Sesión iniciada",
             description: `Bienvenido de vuelta, ${data.user.email}`,
-          });
+      });
 
           // Esperar un momento para que el estado se propague
           await new Promise(resolve => setTimeout(resolve, 300));
           
           // Redirigir
-          router.push("/");
-          router.refresh();
+      router.push("/");
+      router.refresh();
           
           // Forzar recarga después de un momento para asegurar que todo se actualice
           setTimeout(() => {
@@ -200,12 +200,12 @@ export function LoginForm() {
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-semibold">Contraseña</Label>
             <div className="relative">
-              <Input
-                id="password"
+            <Input
+              id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
                 className="pr-10 h-11 border-primary/20 focus:border-primary focus:ring-primary/20"
               />
               <Button

@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Pencil, Trash2, Loader2, X, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, ArrowUp, ArrowDown, Upload } from "lucide-react";
+import { uploadImage } from "@/lib/supabase/storage";
 import { formatPrice } from "@/lib/utils";
 import {
   Select,
@@ -57,6 +58,7 @@ export function ProductsAdmin() {
   });
   const [productImages, setProductImages] = useState<Array<{ url: string; alt_text: string; display_order: number }>>([]);
   const [productVariants, setProductVariants] = useState<Array<{ name: string; variant_type: 'size' | 'color' | 'model' | 'other'; value: string; price_modifier: string; stock: string; sku: string; barcode: string }>>([]);
+  const [uploadingImageIndex, setUploadingImageIndex] = useState<number | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -516,12 +518,25 @@ export function ProductsAdmin() {
                     {productImages.map((img, index) => (
                       <div key={index} className="flex gap-2 items-start border p-2 rounded">
                         <div className="relative w-20 h-20 bg-muted rounded overflow-hidden flex-shrink-0">
-                          {img.url ? (
+                          {img.url && img.url.trim() !== "" ? (
                             <Image
                               src={img.url}
                               alt={img.alt_text || `Imagen ${index + 1}`}
                               fill
                               className="object-cover"
+                              onError={(e) => {
+                                // Si la imagen falla, mostrar placeholder
+                                const target = e.target as HTMLImageElement;
+                                const parent = target.parentElement;
+                                if (parent && !parent.querySelector('.error-placeholder')) {
+                                  target.style.display = 'none';
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'error-placeholder flex items-center justify-center h-full text-xs text-muted-foreground';
+                                  placeholder.textContent = 'Error';
+                                  parent.appendChild(placeholder);
+                                }
+                              }}
+                              unoptimized={img.url.startsWith('http://localhost') || img.url.startsWith('data:')}
                             />
                           ) : (
                             <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
@@ -530,15 +545,83 @@ export function ProductsAdmin() {
                           )}
                         </div>
                         <div className="flex-1 grid gap-2">
-                          <Input
-                            placeholder="URL de la imagen"
-                            value={img.url}
-                            onChange={(e) => {
-                              const newImages = [...productImages];
-                              newImages[index].url = e.target.value;
-                              setProductImages(newImages);
-                            }}
-                          />
+                          <div className="flex gap-2">
+                            <Input
+                              type="url"
+                              placeholder="URL de la imagen (https://...)"
+                              value={img.url}
+                              onChange={(e) => {
+                                const newImages = [...productImages];
+                                newImages[index].url = e.target.value.trim();
+                                setProductImages(newImages);
+                              }}
+                              onBlur={(e) => {
+                                // Validar URL básica
+                                const url = e.target.value.trim();
+                                if (url && !url.match(/^https?:\/\/.+/i) && !url.startsWith('data:') && !url.startsWith('/')) {
+                                  toast({
+                                    title: "URL inválida",
+                                    description: "La URL debe comenzar con http:// o https://",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              className="flex-1"
+                            />
+                            <div className="relative">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id={`file-upload-${index}`}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+
+                                  setUploadingImageIndex(index);
+                                  const result = await uploadImage({
+                                    file,
+                                    folder: 'products',
+                                    bucket: 'images',
+                                  });
+
+                                  if (result.error) {
+                                    toast({
+                                      title: "Error al subir imagen",
+                                      description: result.error,
+                                      variant: "destructive",
+                                    });
+                                  } else if (result.url) {
+                                    const newImages = [...productImages];
+                                    newImages[index].url = result.url;
+                                    setProductImages(newImages);
+                                    toast({
+                                      title: "Imagen subida",
+                                      description: "La imagen se subió correctamente",
+                                    });
+                                  }
+                                  setUploadingImageIndex(null);
+                                  // Limpiar input
+                                  e.target.value = '';
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => {
+                                  document.getElementById(`file-upload-${index}`)?.click();
+                                }}
+                                disabled={uploadingImageIndex === index}
+                              >
+                                {uploadingImageIndex === index ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Upload className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
                           <Input
                             placeholder="Texto alternativo (opcional)"
                             value={img.alt_text}

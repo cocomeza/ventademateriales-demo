@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight, Home } from "lucide-react";
 import { CategoryProductCatalog } from "@/components/category-product-catalog";
 
@@ -50,7 +51,7 @@ export default async function CategoryPage({
     
     const { data: category, error } = await supabase
       .from("categories")
-      .select("id, name, slug, description")
+      .select("id, name, slug, description, image_url")
       .eq("slug", params.slug)
       .eq("active", true)
       .single();
@@ -77,6 +78,18 @@ export default async function CategoryPage({
 
         {/* Header de categoría */}
         <div className="mb-6 sm:mb-8">
+          {category.image_url && (
+            <div className="relative w-full h-48 sm:h-64 md:h-80 mb-4 rounded-lg overflow-hidden">
+              <Image
+                src={category.image_url}
+                alt={category.name}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              />
+            </div>
+          )}
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-primary">
             {category.name}
           </h1>

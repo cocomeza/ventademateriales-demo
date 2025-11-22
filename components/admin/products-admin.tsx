@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductImage, ProductVariant, ProductInsert, ProductUpdate } from "@/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { mockProducts } from "@/lib/mock-data";

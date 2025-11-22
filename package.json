@@ -36,7 +36,9 @@
     "test:all": "npm run test:unit && npm run test:e2e && npm run test:accessibility && npm run test:seo && npm run test:performance && npm run test:security && npm run test:integration",
     "test:new-features": "playwright test tests/e2e/product-comparator.spec.ts tests/e2e/wishlist.spec.ts tests/e2e/checkout.spec.ts tests/e2e/cart-improved.spec.ts tests/e2e/user-profile.spec.ts tests/e2e/global-search.spec.ts tests/e2e/categories.spec.ts tests/e2e/dark-mode.spec.ts tests/e2e/products-improved.spec.ts tests/e2e/orders.spec.ts --reporter=list",
     "test:playwright": "playwright test",
-    "test:playwright:ui": "playwright test --ui"
+    "test:playwright:ui": "playwright test --ui",
+    "check:setup": "node scripts/check-setup.js",
+    "check:all": "npm run lint && npm run test:unit && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.1",
@@ -52,6 +54,7 @@
     "@supabase/supabase-js": "^2.39.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "framer-motion": "^12.23.24",
     "lucide-react": "^0.344.0",
     "next": "14.1.0",
     "react": "^18.2.0",

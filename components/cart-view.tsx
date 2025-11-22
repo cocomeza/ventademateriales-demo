@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cart-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,25 +60,68 @@ export function CartView() {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-12">
-        <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-        <h2 className="text-2xl font-semibold mb-2">Tu carrito está vacío</h2>
-        <p className="text-muted-foreground mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center py-12"
+      >
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-2xl font-semibold mb-2"
+        >
+          Tu carrito está vacío
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-muted-foreground mb-6"
+        >
           Agrega productos desde el catálogo
-        </p>
-        <Button asChild>
-          <Link href="/">Ver productos</Link>
-        </Button>
-      </div>
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Button asChild>
+            <Link href="/">Ver productos</Link>
+          </Button>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
+    >
       <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-        {items.map((item) => (
-          <Card key={item.id}>
-            <CardContent className="p-3 sm:p-4">
+        <AnimatePresence mode="popLayout">
+          {items.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20, transition: { duration: 0.2 } }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
+              layout
+            >
+              <Card>
+                <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative w-full sm:w-24 h-48 sm:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                   {item.image_url ? (
@@ -143,10 +187,17 @@ export function CartView() {
               </div>
             </CardContent>
           </Card>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
-      <div className="lg:col-span-1">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="lg:col-span-1"
+      >
         <Card>
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-lg sm:text-xl">Resumen del pedido</CardTitle>
@@ -165,8 +216,8 @@ export function CartView() {
             <CheckoutDialog items={items} total={total} subtotal={subtotal} discountAmount={0} />
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

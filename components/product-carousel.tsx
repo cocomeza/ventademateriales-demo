@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product } from "@/types";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
@@ -134,18 +135,24 @@ export function ProductCarousel({
             }
           }}
         >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              data-product-card
-              className="flex-shrink-0"
-              style={{
-                width: '180px', // Ancho compacto similar a MercadoLibre
-              }}
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {products.map((product, index) => (
+              <motion.div
+                key={product.id}
+                data-product-card
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
+                className="flex-shrink-0"
+                style={{
+                  width: '180px', // Ancho compacto similar a MercadoLibre
+                }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Botón siguiente */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Product } from "@/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -259,7 +260,11 @@ export function ProductCatalog() {
   }
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {/* Barra de búsqueda y filtros principales */}
       <Card className="mb-6 border-2 border-primary/20 shadow-md">
         <CardContent className="p-4 sm:p-6">
@@ -321,8 +326,15 @@ export function ProductCatalog() {
           </div>
 
           {/* Filtros expandibles */}
-          {showFilters && (
-            <div className="border-t border-primary/20 pt-4 mt-4 space-y-4 animate-in slide-in-from-top-2">
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border-t border-primary/20 pt-4 mt-4 space-y-4 overflow-hidden"
+              >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* Categoría */}
                 <div className="space-y-2">
@@ -426,8 +438,9 @@ export function ProductCatalog() {
                   </Select>
                 </div>
               </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Filtros activos (chips) */}
           {hasActiveFilters && (
@@ -486,25 +499,39 @@ export function ProductCatalog() {
         </CardContent>
       </Card>
 
-      {filteredProducts.length === 0 ? (
-        <Card className="border-2 border-dashed border-primary/20">
-          <CardContent className="py-12 text-center">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Search className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No se encontraron productos</h3>
-            <p className="text-muted-foreground mb-4">
-              No hay productos que coincidan con los filtros seleccionados.
-            </p>
-            {hasActiveFilters && (
-              <Button onClick={clearFilters} variant="outline">
-                <X className="h-4 w-4 mr-2" />
-                Limpiar filtros
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
+      <AnimatePresence mode="wait">
+        {filteredProducts.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="border-2 border-dashed border-primary/20">
+              <CardContent className="py-12 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, type: "spring" }}
+                  className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center"
+                >
+                  <Search className="h-8 w-8 text-primary" />
+                </motion.div>
+                <h3 className="text-lg font-semibold mb-2">No se encontraron productos</h3>
+                <p className="text-muted-foreground mb-4">
+                  No hay productos que coincidan con los filtros seleccionados.
+                </p>
+                {hasActiveFilters && (
+                  <Button onClick={clearFilters} variant="outline">
+                    <X className="h-4 w-4 mr-2" />
+                    Limpiar filtros
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        ) : (
         <>
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
@@ -560,8 +587,9 @@ export function ProductCatalog() {
           
           <ProductComparator products={filteredProducts} />
         </>
-      )}
-    </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

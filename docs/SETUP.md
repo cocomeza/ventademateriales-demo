@@ -14,18 +14,18 @@ Guía consolidada de configuración del proyecto.
 
 ## 🚀 Instalación Inicial
 
-Ver: [INSTALLATION.md](INSTALLATION.md)
+Ver: [setup/INSTALLATION.md](setup/INSTALLATION.md)
 
 ---
 
 ## 🗄️ Supabase
 
 ### Configuración Básica
-Ver: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+Ver: [setup/SUPABASE_SETUP.md](setup/SUPABASE_SETUP.md)
 
 ### Configuración Avanzada
-- **Storage**: Ver [SUPABASE_STORAGE_SETUP.md](SUPABASE_STORAGE_SETUP.md)
-- **Configuración adicional**: Ver [SUPABASE_CONFIG.md](SUPABASE_CONFIG.md)
+- **Storage**: Ver [setup/SUPABASE_STORAGE_SETUP.md](setup/SUPABASE_STORAGE_SETUP.md)
+- **Solución de problemas**: Ver [setup/SUPABASE_CONFIG.md](setup/SUPABASE_CONFIG.md)
 
 ### Configuración Rápida de Usuario
 - **Crear usuario de prueba**: Ver [CREATE_TEST_USER.md](guides/CREATE_TEST_USER.md)
@@ -36,7 +36,7 @@ Ver: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 
 ## 👨‍💼 Administración
 
-Ver: [ADMIN_SETUP.md](ADMIN_SETUP.md)
+Ver: [setup/ADMIN_SETUP.md](setup/ADMIN_SETUP.md)
 
 ### Configuración de Admin
 - Asignar rol de admin a usuarios
@@ -66,7 +66,7 @@ Ver: [CONTACT_CONFIG.md](guides/CONTACT_CONFIG.md)
 
 ## 📊 Sentry (Monitoreo)
 
-Ver: [SENTRY_SETUP.md](SENTRY_SETUP.md)
+Ver: [setup/SENTRY_SETUP.md](setup/SENTRY_SETUP.md)
 
 Configuración de monitoreo de errores y métricas de rendimiento.
 

@@ -1,61 +1,84 @@
-# Documentación - MaterialesYA
+# 📚 Documentación del Proyecto
 
-Bienvenido a la documentación de MaterialesYA. Aquí encontrarás todas las guías y recursos necesarios para trabajar con el proyecto.
+## ⚡ Inicio Rápido
 
-## 📚 Guías Disponibles
+**¿Tienes prisa?** → **[QUICK_START.md](QUICK_START.md)** - Guía rápida en 3 pasos (25 minutos)
 
-### [Guía de Instalación](./INSTALLATION.md)
-Guía paso a paso para configurar y ejecutar MaterialesYA en tu entorno local. Incluye:
-- Requisitos previos
-- Configuración de Supabase
-- Variables de entorno
-- Solución de problemas
+## 📖 Documentación Principal
 
-### [Configuración de Supabase](./SUPABASE_SETUP.md)
-Guía completa para configurar la base de datos en Supabase:
-- Script SQL completo y ordenado
-- Creación de tablas y políticas
-- Configuración de autenticación
-- Datos de ejemplo
-- Verificación y solución de problemas
+### 🚀 Para Empezar
+- **[QUICK_START.md](QUICK_START.md)** - ⚡ Inicio rápido (3 pasos)
+- **[INSTALLATION.md](INSTALLATION.md)** - Instalación completa
+- **[ci-cd/README.md](ci-cd/README.md)** - ⭐ **Guía completa de CI/CD** (recomendado)
 
-### [Configuración de Usuario Admin](./ADMIN_SETUP.md)
-Guía para crear y configurar usuarios administradores:
-- Crear usuario en Supabase
-- Asignar rol de admin
-- Iniciar sesión como admin
-- Gestión de roles y usuarios
-- Solución de problemas
+### 🔧 Configuración
+- **[SUPABASE_SETUP.md](SUPABASE_SETUP.md)** - Configuración de Supabase
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía de despliegue
+- **[ADMIN_SETUP.md](ADMIN_SETUP.md)** - Configuración de admin
 
-### [Guía de Despliegue](./DEPLOYMENT.md)
-Instrucciones detalladas para desplegar MaterialesYA en producción:
-- Despliegue en Vercel (recomendado)
-- Despliegue manual
-- Configuración de variables de entorno
-- Post-despliegue y optimizaciones
+### 📦 CI/CD y DevOps
+- **[ci-cd/README.md](ci-cd/README.md)** - Guía completa de CI/CD
+  - Subir cambios a GitHub
+  - Configurar secrets
+  - Probar workflows
+- **[ci-cd/SETUP_TECNICO.md](ci-cd/SETUP_TECNICO.md)** - Documentación técnica
 
-### [Estructura del Proyecto](./PROJECT_STRUCTURE.md)
-Documentación detallada sobre la organización del proyecto:
-- Estructura de directorios
-- Descripción de carpetas principales
-- Convenciones de código
-- Archivos de configuración
+### 💻 Desarrollo
+- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Estructura del proyecto
+- **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Sistema de diseño
+- **[FEATURES_STATUS.md](FEATURES_STATUS.md)** - Estado de funcionalidades
 
-## 🚀 Inicio Rápido
+### 🧪 Testing
+- **[TESTING_SUMMARY.md](TESTING_SUMMARY.md)** - Resumen de tests
+- **[TESTS_IMPLEMENTED.md](TESTS_IMPLEMENTED.md)** - Tests implementados
 
-1. Lee la [Guía de Instalación](./INSTALLATION.md) para configurar el proyecto
-2. Revisa el [README principal](../README.md) para entender la estructura
-3. Consulta [CONTRIBUTING.md](../CONTRIBUTING.md) si quieres contribuir
+### 🆘 Ayuda
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Solución de problemas
+- **[LOGIN_TROUBLESHOOTING.md](LOGIN_TROUBLESHOOTING.md)** - Problemas de login
 
-## 📖 Recursos Adicionales
+## 🎯 Guías por Tarea
 
-- [README Principal](../README.md) - Visión general del proyecto
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Guía de contribución
-- [LICENSE](../LICENSE) - Licencia del proyecto
+### Quiero...
+- **Empezar rápido** → [QUICK_START.md](QUICK_START.md)
+- **Configurar CI/CD** → [ci-cd/README.md](ci-cd/README.md)
+- **Subir cambios** → [ci-cd/README.md](ci-cd/README.md#subir-cambios-a-github)
+- **Configurar Supabase** → [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+- **Desplegar** → [DEPLOYMENT.md](DEPLOYMENT.md)
+- **Entender estructura** → [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+- **Resolver error** → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
-## 🆘 Necesitas Ayuda?
+## 📁 Estructura
 
-- Revisa la sección de "Solución de Problemas" en cada guía
-- Abre un [issue](https://github.com/tu-usuario/MaterialesYA/issues) en GitHub
-- Consulta la documentación oficial de [Next.js](https://nextjs.org/docs) y [Supabase](https://supabase.com/docs)
+```
+docs/
+├── README.md              ← Estás aquí (índice)
+├── QUICK_START.md         ← ⚡ Inicio rápido
+├── ci-cd/                 ← 📦 Todo CI/CD
+│   ├── README.md         ← Guía completa
+│   ├── SETUP_TECNICO.md  ← Técnico
+│   └── CI_CD_SETUP.md    ← Setup detallado
+├── INSTALLATION.md        ← Instalación
+├── SUPABASE_SETUP.md     ← Supabase
+├── DEPLOYMENT.md         ← Despliegue
+└── archive/              ← Documentación antigua
+```
 
+Ver detalles: [ESTRUCTURA.md](ESTRUCTURA.md)
+
+## 🔍 Búsqueda Rápida
+
+| Necesito... | Archivo |
+|-------------|---------|
+| Empezar rápido | [QUICK_START.md](QUICK_START.md) |
+| CI/CD completo | [ci-cd/README.md](ci-cd/README.md) |
+| Instalación | [INSTALLATION.md](INSTALLATION.md) |
+| Supabase | [SUPABASE_SETUP.md](SUPABASE_SETUP.md) |
+| Despliegue | [DEPLOYMENT.md](DEPLOYMENT.md) |
+| Problemas | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
+
+## 💡 Recomendación
+
+**¿Primera vez?**
+1. Lee [QUICK_START.md](QUICK_START.md) (5 min)
+2. Sigue [ci-cd/README.md](ci-cd/README.md) (25 min)
+3. ¡Listo! 🎉
